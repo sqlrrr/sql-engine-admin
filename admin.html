@@ -82,7 +82,7 @@
                         <tbody>
                             <tr>
                                 <td>Backend API</td>
-                                <td style="color: #4ade80;">✓ Running</td>
+                                <td id="backendStatus" style="color: #4ade80;">✓ Running</td>
                                 <td id="uptime">-</td>
                             </tr>
                             <tr>
@@ -112,33 +112,38 @@
         </div>
     </div>
     <script>
-        const API_BASE = 'http://localhost:3000/api';
+        // Backend API URL on GitHub Pages
+        const API_BASE = 'https://sqlrrr.github.io/sql-engine-backend';
         
         async function fetch_data(endpoint) {
             try {
                 const res = await fetch(API_BASE + endpoint);
                 return res.ok ? await res.json() : null;
             } catch (e) {
-                console.error(e);
+                console.error('API Error:', e);
                 return null;
             }
         }
         
         async function load_admin() {
-            const data = await fetch_data('/dashboard');
+            const data = await fetch_data('/api/dashboard');
             if (data && data.success) {
                 document.getElementById('users').textContent = Math.floor(Math.random() * 1000) + 100;
                 document.getElementById('apiCalls').textContent = Math.floor(Math.random() * 50000) + 10000;
                 document.getElementById('signals').textContent = Math.floor(Math.random() * 500) + 100;
             }
             
-            const health = await fetch_data('/health');
+            const health = await fetch_data('/api/health');
             if (health && health.status === 'OK') {
                 document.getElementById('health').textContent = 'OK';
+                document.getElementById('backendStatus').textContent = '✓ Running';
                 document.getElementById('uptime').textContent = health.uptime ? health.uptime.toFixed(0) + 's' : '-';
+            } else {
+                document.getElementById('backendStatus').textContent = '✗ Offline';
+                document.getElementById('backendStatus').style.color = '#ff4444';
             }
             
-            const signals = await fetch_data('/signals/all');
+            const signals = await fetch_data('/api/signals/all');
             if (signals && signals.success) {
                 let html = '<table class="table"><thead><tr><th>Symbol</th><th>Action</th><th>Score</th><th>Time</th></tr></thead><tbody>';
                 signals.data.slice(0, 5).forEach(s => {
