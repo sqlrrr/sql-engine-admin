@@ -28,7 +28,6 @@
         .table tr:hover { background: #2a2a2a; }
         .positive { color: #4ade80; }
         .negative { color: #ff4444; }
-        .loading { text-align: center; color: #ff6b6b; }
     </style>
 </head>
 <body>
@@ -77,11 +76,6 @@
                         </thead>
                         <tbody>
                             <tr>
-                                <td>Backend API</td>
-                                <td id="backend-status" class="positive">✓ Online</td>
-                                <td>Real-time data</td>
-                            </tr>
-                            <tr>
                                 <td>CoinGecko API</td>
                                 <td class="positive">✓ Online</td>
                                 <td>Live prices</td>
@@ -96,6 +90,11 @@
                                 <td class="positive">✓ Active</td>
                                 <td>AI signals</td>
                             </tr>
+                            <tr>
+                                <td>GitHub Pages</td>
+                                <td class="positive">✓ Online</td>
+                                <td>Frontend hosting</td>
+                            </tr>
                         </tbody>
                     </table>
                 </div>
@@ -108,11 +107,11 @@
                                 <th>Symbol</th>
                                 <th>Signal</th>
                                 <th>Score</th>
-                                <th>Confidence</th>
+                                <th>Change 24h</th>
                             </tr>
                         </thead>
                         <tbody id="signals-table">
-                            <tr><td colspan="4" class="loading">Loading signals...</td></tr>
+                            <tr><td colspan="4" style="text-align: center; color: #ff6b6b;">Loading signals...</td></tr>
                         </tbody>
                     </table>
                 </div>
@@ -121,53 +120,28 @@
     </div>
 
     <script>
-        // Backend API URL
-        const API_BASE = 'http://localhost:3000/api';
-        
-        // Alternative: If backend is deployed, use:
-        // const API_BASE = 'https://your-backend-url.com/api';
-
-        async function checkBackendStatus() {
-            try {
-                const response = await fetch(API_BASE + '/health', { timeout: 5000 });
-                if (response.ok) {
-                    document.getElementById('backend-status').textContent = '✓ Online';
-                    document.getElementById('backend-status').className = 'positive';
-                    return true;
-                }
-            } catch (e) {
-                console.error('Backend offline:', e);
-            }
-            document.getElementById('backend-status').textContent = '✗ Offline';
-            document.getElementById('backend-status').className = 'negative';
-            return false;
-        }
-
         async function loadPrices() {
             try {
-                const response = await fetch(API_BASE + '/prices?symbols=bitcoin,ethereum,solana');
+                const response = await fetch('https://api.coingecko.com/api/v3/simple/price?ids=bitcoin,ethereum,solana&vs_currencies=usd&include_24hr_change=true');
                 const data = await response.json();
                 
-                if (data.success && data.data) {
-                    data.data.forEach(p => {
-                        const change = p.change24h || 0;
+                const prices = {
+                    'bitcoin': { symbol: 'BTC', id: 'bitcoin', element: 'admin-btc' },
+                    'ethereum': { symbol: 'ETH', id: 'ethereum', element: 'admin-eth' },
+                    'solana': { symbol: 'SOL', id: 'solana', element: 'admin-sol' }
+                };
+                
+                for (const [id, info] of Object.entries(prices)) {
+                    if (data[id]) {
+                        const price = data[id].usd;
+                        const change = data[id].usd_24h_change || 0;
                         const changeColor = change > 0 ? 'positive' : 'negative';
                         const changeText = (change > 0 ? '↑' : '↓') + ' ' + Math.abs(change).toFixed(2) + '%';
                         
-                        if (p.symbol === 'BITCOIN') {
-                            document.getElementById('admin-btc').textContent = '$' + p.price.toLocaleString('en-US', {maximumFractionDigits: 0});
-                            document.getElementById('admin-btc-change').textContent = changeText;
-                            document.getElementById('admin-btc-change').className = changeColor;
-                        } else if (p.symbol === 'ETHEREUM') {
-                            document.getElementById('admin-eth').textContent = '$' + p.price.toLocaleString('en-US', {maximumFractionDigits: 0});
-                            document.getElementById('admin-eth-change').textContent = changeText;
-                            document.getElementById('admin-eth-change').className = changeColor;
-                        } else if (p.symbol === 'SOLANA') {
-                            document.getElementById('admin-sol').textContent = '$' + p.price.toLocaleString('en-US', {maximumFractionDigits: 2});
-                            document.getElementById('admin-sol-change').textContent = changeText;
-                            document.getElementById('admin-sol-change').className = changeColor;
-                        }
-                    });
+                        document.getElementById(info.element).textContent = '$' + price.toLocaleString('en-US', {maximumFractionDigits: 0});
+                        document.getElementById(info.element + '-change').textContent = changeText;
+                        document.getElementById(info.element + '-change').className = changeColor;
+                    }
                 }
             } catch (error) {
                 console.error('Error loading prices:', error);
@@ -176,37 +150,43 @@
 
         async function loadSignals() {
             try {
-                const response = await fetch(API_BASE + '/signals/all');
-                const data = await response.json();
+                const symbols = ['BTC', 'ETH', 'SOL', 'ADA', 'XRP'];
+                let html = '';
                 
-                if (data.success && data.data) {
-                    let html = '';
+                for (const symbol of symbols) {
+                    const response = await fetch(`https://api.binance.com/api/v3/ticker/24hr?symbol=${symbol}USDT`);
+                    const data = await response.json();
                     
-                    data.data.forEach(signal => {
-                        const signalColor = signal.action === 'BUY' ? '#4ade80' : signal.action === 'SELL' ? '#ff4444' : '#ffd700';
-                        html += `<tr>
-                            <td>${signal.symbol}</td>
-                            <td style="color: ${signalColor}; font-weight: bold;">${signal.action}</td>
-                            <td>${signal.score}</td>
-                            <td>${signal.change24h > 0 ? '↑' : '↓'} ${Math.abs(signal.change24h).toFixed(2)}%</td>
-                        </tr>`;
-                    });
+                    const change = parseFloat(data.priceChangePercent);
+                    let action = 'HOLD';
+                    let score = 50;
+                    let color = '#ffd700';
                     
-                    document.getElementById('signals-table').innerHTML = html;
+                    if (change > 5) { action = 'BUY'; score = 75; color = '#4ade80'; }
+                    else if (change > 2) { action = 'BUY'; score = 65; color = '#4ade80'; }
+                    else if (change < -5) { action = 'SELL'; score = 25; color = '#ff4444'; }
+                    else if (change < -2) { action = 'SELL'; score = 35; color = '#ff4444'; }
+                    
+                    html += `<tr>
+                        <td>${symbol}</td>
+                        <td style="color: ${color}; font-weight: bold;">${action}</td>
+                        <td>${score}</td>
+                        <td>${change > 0 ? '↑' : '↓'} ${Math.abs(change).toFixed(2)}%</td>
+                    </tr>`;
                 }
+                
+                document.getElementById('signals-table').innerHTML = html;
             } catch (error) {
                 console.error('Error loading signals:', error);
-                document.getElementById('signals-table').innerHTML = '<tr><td colspan="4" class="loading">Error loading signals</td></tr>';
+                document.getElementById('signals-table').innerHTML = '<tr><td colspan="4" style="text-align: center; color: #ff4444;">Error loading signals</td></tr>';
             }
         }
 
         async function init() {
-            await checkBackendStatus();
             await loadPrices();
             await loadSignals();
             
             setInterval(async () => {
-                await checkBackendStatus();
                 await loadPrices();
                 await loadSignals();
             }, 30000);
