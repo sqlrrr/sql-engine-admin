@@ -3,547 +3,86 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>SQL ENGINE - Admin Panel</title>
+    <title>SQL ENGINE PRO - Admin Portal</title>
     <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
-
-        body {
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            background: linear-gradient(135deg, #0f0f0f 0%, #1a1a1a 50%, #0f0f0f 100%);
-            color: #fff;
-            min-height: 100vh;
-        }
-
-        /* Header */
-        header {
-            background: #0f0f0f;
-            border-bottom: 2px solid #d4af37;
-            padding: 20px 40px;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            box-shadow: 0 0 20px rgba(212, 175, 55, 0.3);
-        }
-
-        .header-left h1 {
-            font-size: 32px;
-            color: #d4af37;
-            text-shadow: 0 0 20px rgba(212, 175, 55, 0.5);
-            margin-bottom: 5px;
-        }
-
-        .header-left p {
-            color: #999;
-            font-size: 12px;
-        }
-
-        .header-right {
-            display: flex;
-            align-items: center;
-            gap: 20px;
-        }
-
-        .badge {
-            background: #d4af37;
-            color: #000;
-            padding: 6px 12px;
-            border-radius: 20px;
-            font-size: 12px;
-            font-weight: bold;
-        }
-
-        .logout-btn {
-            background: transparent;
-            border: 2px solid #d4af37;
-            color: #d4af37;
-            padding: 8px 16px;
-            border-radius: 6px;
-            cursor: pointer;
-            font-weight: bold;
-            transition: all 0.3s;
-        }
-
-        .logout-btn:hover {
-            background: #d4af37;
-            color: #0f0f0f;
-        }
-
-        /* Main Container */
-        .container {
-            max-width: 1400px;
-            margin: 0 auto;
-            padding: 30px 20px;
-        }
-
-        /* Stats Grid */
-        .stats-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-            gap: 20px;
-            margin-bottom: 30px;
-        }
-
-        .stat-card {
-            background: #1a1a1a;
-            border: 2px solid #d4af37;
-            padding: 20px;
-            border-radius: 8px;
-            transition: all 0.3s;
-        }
-
-        .stat-card:hover {
-            transform: translateY(-5px);
-            box-shadow: 0 10px 30px rgba(212, 175, 55, 0.2);
-        }
-
-        .stat-label {
-            color: #999;
-            font-size: 12px;
-            margin-bottom: 10px;
-        }
-
-        .stat-value {
-            color: #d4af37;
-            font-size: 28px;
-            font-weight: bold;
-        }
-
-        /* Tabs */
-        .tabs {
-            display: flex;
-            gap: 10px;
-            margin-bottom: 30px;
-            border-bottom: 2px solid #2a2a2a;
-            flex-wrap: wrap;
-        }
-
-        .tab-btn {
-            background: transparent;
-            border: none;
-            color: #999;
-            padding: 12px 20px;
-            cursor: pointer;
-            font-weight: bold;
-            border-bottom: 3px solid transparent;
-            transition: all 0.3s;
-        }
-
-        .tab-btn.active {
-            color: #0f0f0f;
-            background: #d4af37;
-            border-bottom-color: #d4af37;
-        }
-
-        .tab-btn:hover {
-            color: #d4af37;
-        }
-
-        /* Tab Content */
-        .tab-content {
-            display: none;
-        }
-
-        .tab-content.active {
-            display: block;
-        }
-
-        /* Cards */
-        .card {
-            background: #1a1a1a;
-            border: 2px solid #d4af37;
-            border-radius: 8px;
-            padding: 20px;
-            margin-bottom: 20px;
-        }
-
-        .card-header {
-            margin-bottom: 20px;
-            border-bottom: 1px solid #2a2a2a;
-            padding-bottom: 15px;
-        }
-
-        .card-title {
-            color: #d4af37;
-            font-size: 20px;
-            font-weight: bold;
-            margin-bottom: 5px;
-        }
-
-        .card-description {
-            color: #999;
-            font-size: 12px;
-        }
-
-        /* User List */
-        .user-item {
-            background: #0f0f0f;
-            border-left: 3px solid #d4af37;
-            padding: 15px;
-            margin-bottom: 10px;
-            border-radius: 6px;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-        }
-
-        .user-info h3 {
-            color: #d4af37;
-            font-size: 14px;
-            margin-bottom: 5px;
-        }
-
-        .user-info p {
-            color: #666;
-            font-size: 12px;
-        }
-
-        .user-actions {
-            display: flex;
-            gap: 10px;
-        }
-
-        .badge-role {
-            padding: 4px 12px;
-            border-radius: 20px;
-            font-size: 11px;
-            font-weight: bold;
-        }
-
-        .badge-admin {
-            background: #d4af37;
-            color: #000;
-        }
-
-        .badge-user {
-            background: #666;
-            color: #fff;
-        }
-
-        /* API Status */
-        .api-item {
-            background: #0f0f0f;
-            padding: 15px;
-            margin-bottom: 10px;
-            border-radius: 6px;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            border-left: 3px solid;
-        }
-
-        .api-item.healthy {
-            border-left-color: #00ff88;
-        }
-
-        .api-item.degraded {
-            border-left-color: #ffaa00;
-        }
-
-        .api-item.down {
-            border-left-color: #ff3366;
-        }
-
-        .api-info h3 {
-            color: #d4af37;
-            font-size: 14px;
-            margin-bottom: 5px;
-        }
-
-        .api-info p {
-            color: #666;
-            font-size: 12px;
-        }
-
-        .status-badge {
-            padding: 6px 12px;
-            border-radius: 20px;
-            font-size: 11px;
-            font-weight: bold;
-            color: #000;
-        }
-
-        .status-healthy {
-            background: #00ff88;
-        }
-
-        .status-degraded {
-            background: #ffaa00;
-        }
-
-        .status-down {
-            background: #ff3366;
-        }
-
-        /* Settings */
-        .setting-item {
-            background: #0f0f0f;
-            padding: 15px;
-            margin-bottom: 10px;
-            border-radius: 6px;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-        }
-
-        .setting-item label {
-            color: #999;
-        }
-
-        .setting-item input,
-        .setting-item select {
-            background: #1a1a1a;
-            color: #d4af37;
-            border: 1px solid #d4af37;
-            padding: 6px 10px;
-            border-radius: 4px;
-            cursor: pointer;
-        }
-
-        /* Alert */
-        .alert {
-            background: #0f0f0f;
-            border-left: 3px solid #00ff88;
-            padding: 15px;
-            margin-bottom: 20px;
-            border-radius: 6px;
-            color: #999;
-        }
-
-        /* Responsive */
-        @media (max-width: 768px) {
-            header {
-                flex-direction: column;
-                gap: 15px;
-                text-align: center;
-            }
-
-            .stats-grid {
-                grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
-            }
-
-            .tabs {
-                overflow-x: auto;
-            }
-
-            .container {
-                padding: 15px 10px;
-            }
-        }
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: 'Segoe UI', sans-serif; background: linear-gradient(135deg, #0a0a0a 0%, #1a1a1a 100%); color: #fff; min-height: 100vh; }
+        header { background: #0a0a0a; border-bottom: 2px solid #ff6b6b; padding: 20px 40px; text-align: center; }
+        h1 { color: #ff6b6b; font-size: 36px; margin-bottom: 10px; }
+        .container { max-width: 1200px; margin: 40px auto; padding: 0 20px; }
+        .hero { text-align: center; margin-bottom: 60px; }
+        .hero h2 { color: #ff6b6b; font-size: 28px; margin-bottom: 20px; }
+        .hero p { color: #ccc; font-size: 16px; line-height: 1.6; margin-bottom: 30px; }
+        .features { display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 20px; margin-bottom: 60px; }
+        .feature { background: #1a1a1a; border: 2px solid #ff6b6b; padding: 20px; border-radius: 8px; text-align: center; }
+        .feature h3 { color: #ff6b6b; margin-bottom: 10px; }
+        .feature p { color: #999; }
+        .cta-section { text-align: center; margin: 60px 0; }
+        .cta-button { background: #ff6b6b; color: #fff; padding: 15px 40px; border: none; border-radius: 8px; font-weight: bold; font-size: 16px; cursor: pointer; margin: 10px; transition: all 0.3s; text-decoration: none; display: inline-block; }
+        .cta-button:hover { background: #ff5252; transform: scale(1.05); }
+        .links { display: flex; justify-content: center; gap: 20px; flex-wrap: wrap; margin: 40px 0; }
+        .link-btn { background: #1a1a1a; border: 2px solid #ff6b6b; color: #ff6b6b; padding: 12px 24px; border-radius: 6px; text-decoration: none; font-weight: bold; transition: all 0.3s; }
+        .link-btn:hover { background: #ff6b6b; color: #fff; }
+        .status { background: #1a1a1a; border: 2px solid #4ade80; padding: 20px; border-radius: 8px; text-align: center; margin: 30px 0; }
+        .status h3 { color: #4ade80; margin-bottom: 10px; }
+        footer { text-align: center; padding: 40px; color: #666; border-top: 1px solid #333; margin-top: 60px; }
     </style>
 </head>
 <body>
-    <!-- Header -->
     <header>
-        <div class="header-left">
-            <h1>🛡️ ADMIN PANEL</h1>
-            <p>System Management & Monitoring</p>
-        </div>
-        <div class="header-right">
-            <span class="badge">Admin</span>
-            <button class="logout-btn" onclick="logout()">Logout</button>
-        </div>
+        <h1>🛡️ SQL ENGINE PRO - Admin Portal</h1>
+        <p>Complete System Administration & Monitoring</p>
     </header>
-
-    <!-- Main Container -->
+    
     <div class="container">
-        <!-- Stats Grid -->
-        <div class="stats-grid">
-            <div class="stat-card">
-                <div class="stat-label">Total Users</div>
-                <div class="stat-value">156</div>
+        <div class="hero">
+            <h2>Advanced Admin Control Center</h2>
+            <p>Monitor system health, manage users, analyze trading performance, and control all aspects of the SQL ENGINE PRO platform.</p>
+        </div>
+        
+        <div class="features">
+            <div class="feature">
+                <h3>📊 Dashboard</h3>
+                <p>Real-time system metrics and performance monitoring</p>
             </div>
-            <div class="stat-card">
-                <div class="stat-label">Active Users</div>
-                <div class="stat-value">42</div>
+            <div class="feature">
+                <h3>👥 User Management</h3>
+                <p>Manage users, permissions, and access control</p>
             </div>
-            <div class="stat-card">
-                <div class="stat-label">Total Signals</div>
-                <div class="stat-value">1,243</div>
+            <div class="feature">
+                <h3>📈 Analytics</h3>
+                <p>Detailed trading statistics and performance analysis</p>
             </div>
-            <div class="stat-card">
-                <div class="stat-label">Total Trades</div>
-                <div class="stat-value">3,891</div>
+            <div class="feature">
+                <h3>🔔 Alerts</h3>
+                <p>System alerts and notification management</p>
             </div>
-            <div class="stat-card">
-                <div class="stat-label">API Health</div>
-                <div class="stat-value">99.8%</div>
+            <div class="feature">
+                <h3>🗂️ Logs</h3>
+                <p>Comprehensive system and transaction logs</p>
             </div>
-            <div class="stat-card">
-                <div class="stat-label">DB Status</div>
-                <div class="stat-value">Healthy</div>
+            <div class="feature">
+                <h3>⚙️ Settings</h3>
+                <p>System configuration and preferences</p>
             </div>
         </div>
-
-        <!-- Tabs -->
-        <div class="tabs">
-            <button class="tab-btn active" onclick="switchTab('dashboard')">📊 Dashboard</button>
-            <button class="tab-btn" onclick="switchTab('users')">👥 Users</button>
-            <button class="tab-btn" onclick="switchTab('apis')">🔌 APIs</button>
-            <button class="tab-btn" onclick="switchTab('settings')">⚙️ Settings</button>
-            <button class="tab-btn" onclick="switchTab('security')">🔐 Security</button>
+        
+        <div class="status">
+            <h3>✅ System Status: OPERATIONAL</h3>
+            <p>✓ All Services Running | ✓ 20 APIs Connected | ✓ Real-time Data Streaming</p>
         </div>
-
-        <!-- Dashboard Tab -->
-        <div id="dashboard" class="tab-content active">
-            <div class="card">
-                <div class="card-header">
-                    <div class="card-title">📊 System Overview</div>
-                    <div class="card-description">Real-time monitoring and analytics</div>
-                </div>
-                <div class="setting-item">
-                    <span>API Response Time (avg)</span>
-                    <span style="color: #d4af37; font-weight: bold;">234ms</span>
-                </div>
-                <div class="setting-item">
-                    <span>Database Connections</span>
-                    <span style="color: #d4af37; font-weight: bold;">42/100</span>
-                </div>
-                <div class="setting-item">
-                    <span>Cache Hit Rate</span>
-                    <span style="color: #d4af37; font-weight: bold;">87.3%</span>
-                </div>
-            </div>
-        </div>
-
-        <!-- Users Tab -->
-        <div id="users" class="tab-content">
-            <div class="card">
-                <div class="card-header">
-                    <div class="card-title">👥 User Management</div>
-                    <div class="card-description">Manage system users and permissions</div>
-                </div>
-                <div class="user-item">
-                    <div class="user-info">
-                        <h3>John Trader</h3>
-                        <p>john@example.com</p>
-                    </div>
-                    <div class="user-actions">
-                        <span class="badge-role badge-user">User</span>
-                    </div>
-                </div>
-                <div class="user-item">
-                    <div class="user-info">
-                        <h3>Admin User</h3>
-                        <p>admin@example.com</p>
-                    </div>
-                    <div class="user-actions">
-                        <span class="badge-role badge-admin">Admin</span>
-                    </div>
-                </div>
-            </div>
-        </div>
-
-        <!-- APIs Tab -->
-        <div id="apis" class="tab-content">
-            <div class="card">
-                <div class="card-header">
-                    <div class="card-title">🔌 API Status</div>
-                    <div class="card-description">Monitor integrated API services</div>
-                </div>
-                <div class="api-item healthy">
-                    <div class="api-info">
-                        <h3>CoinGecko</h3>
-                        <p>Response: 145ms</p>
-                    </div>
-                    <span class="status-badge status-healthy">Healthy</span>
-                </div>
-                <div class="api-item healthy">
-                    <div class="api-info">
-                        <h3>Binance</h3>
-                        <p>Response: 234ms</p>
-                    </div>
-                    <span class="status-badge status-healthy">Healthy</span>
-                </div>
-                <div class="api-item healthy">
-                    <div class="api-info">
-                        <h3>Etherscan</h3>
-                        <p>Response: 312ms</p>
-                    </div>
-                    <span class="status-badge status-healthy">Healthy</span>
-                </div>
-                <div class="api-item degraded">
-                    <div class="api-info">
-                        <h3>Solscan</h3>
-                        <p>Response: 1200ms</p>
-                    </div>
-                    <span class="status-badge status-degraded">Degraded</span>
-                </div>
-            </div>
-        </div>
-
-        <!-- Settings Tab -->
-        <div id="settings" class="tab-content">
-            <div class="card">
-                <div class="card-header">
-                    <div class="card-title">⚙️ System Settings</div>
-                    <div class="card-description">Configure system parameters</div>
-                </div>
-                <div class="setting-item">
-                    <label>Auto-Trading Enabled</label>
-                    <input type="checkbox" checked>
-                </div>
-                <div class="setting-item">
-                    <label>Signal Update Frequency</label>
-                    <select>
-                        <option>Every 5 minutes</option>
-                        <option>Every 15 minutes</option>
-                        <option>Every 30 minutes</option>
-                    </select>
-                </div>
-                <div class="setting-item">
-                    <label>Max Leverage</label>
-                    <input type="number" value="5" style="width: 80px;">
-                </div>
-            </div>
-        </div>
-
-        <!-- Security Tab -->
-        <div id="security" class="tab-content">
-            <div class="card">
-                <div class="card-header">
-                    <div class="card-title">🔐 Security</div>
-                    <div class="card-description">Security settings and audit logs</div>
-                </div>
-                <div class="alert">
-                    ✓ All API keys are encrypted and stored securely
-                </div>
-                <div class="setting-item">
-                    <span>Recent Activity</span>
-                </div>
-                <div style="color: #666; font-size: 12px; padding: 10px; margin-left: 10px;">
-                    <p>✓ Admin login - 5 minutes ago</p>
-                    <p>✓ API keys rotated - 2 days ago</p>
-                    <p>✓ Database backup - 1 day ago</p>
-                </div>
+        
+        <div class="cta-section">
+            <h2 style="color: #ff6b6b; margin-bottom: 20px;">Admin Access</h2>
+            <div class="links">
+                <a href="admin.html" class="cta-button">🛡️ Admin Panel</a>
+                <a href="https://github.com/sqlrrr" class="link-btn" target="_blank">💻 GitHub</a>
             </div>
         </div>
     </div>
-
-    <script>
-        function switchTab(tabName) {
-            // Hide all tabs
-            const tabs = document.querySelectorAll('.tab-content');
-            tabs.forEach(tab => tab.classList.remove('active'));
-
-            // Remove active class from all buttons
-            const buttons = document.querySelectorAll('.tab-btn');
-            buttons.forEach(btn => btn.classList.remove('active'));
-
-            // Show selected tab
-            document.getElementById(tabName).classList.add('active');
-
-            // Add active class to clicked button
-            event.target.classList.add('active');
-        }
-
-        function logout() {
-            alert('Logged out successfully!');
-            window.location.href = '/';
-        }
-    </script>
+    
+    <footer>
+        <p>SQL ENGINE PRO © 2025 | Admin Control Center</p>
+    </footer>
 </body>
 </html>
